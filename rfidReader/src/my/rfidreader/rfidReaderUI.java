@@ -5,17 +5,14 @@
  */
 package my.rfidreader;
 import com.thingmagic.*;
-import com.thingmagic.Reader.GpioPin;
-import com.thingmagic.TagProtocol;
-import com.thingmagic.TMConstants;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.util.TreeMap;
 import java.util.EnumSet;
 import java.util.Vector;
+import jssc.*;
 
 /**
  *
@@ -23,10 +20,13 @@ import java.util.Vector;
  */
 public class rfidReaderUI extends javax.swing.JFrame {
 
+    Reader r = null;
+    ReadListener rl = new PrintListener();
+    
     /**
      * Creates new form rfidReaderUI
      */
-    public rfidReaderUI() throws ReaderException {
+    public rfidReaderUI() {
         initComponents();
     }
 
@@ -50,6 +50,11 @@ public class rfidReaderUI extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         jList2 = new javax.swing.JList();
         jLabel2 = new javax.swing.JLabel();
+        jButton4 = new javax.swing.JButton();
+        jComboBox1 = new javax.swing.JComboBox();
+        jButton5 = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -110,6 +115,30 @@ public class rfidReaderUI extends javax.swing.JFrame {
 
         jLabel2.setText("EPC ID");
 
+        jButton4.setText("Scan ports");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
+
+        jButton5.setText("Connect");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setText("Set Baud Rate");
+
+        jTextField1.setText("9600");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -123,25 +152,58 @@ public class rfidReaderUI extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(339, 339, 339)
                         .addComponent(jButton1)
-                        .addGap(0, 100, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel1)
-                        .addGap(29, 29, 29))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jSplitPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(10, 10, 10)
+                                .addComponent(jButton4))
+                            .addComponent(jLabel2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel1)
+                                .addGap(29, 29, 29))
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jButton5)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 327, Short.MAX_VALUE)
+                                        .addComponent(jSplitPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                        .addComponent(jLabel3)
+                                        .addGap(0, 0, Short.MAX_VALUE)))
+                                .addContainerGap())))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jSplitPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jSplitPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 94, Short.MAX_VALUE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton4)
+                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton5))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel2))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(12, 12, 12)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(0, 0, Short.MAX_VALUE)))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSplitPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -162,10 +224,10 @@ public class rfidReaderUI extends javax.swing.JFrame {
         String btnTxt = jButton3.getText();
         if (btnTxt.equals("Start Read")) {
             jButton3.setText("Stop Read");
-            
+            startAsyncRead();
         } else {
             jButton3.setText("Start Read");
-            
+            stopAsyncRead();
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -173,6 +235,34 @@ public class rfidReaderUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         
     }//GEN-LAST:event_jList1ValueChanged
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(portScan()));
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox1ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+        String btnTxt = jButton3.getText();
+        if (btnTxt.equals("Connect")) {
+            jButton3.setText("Disconnect");
+            String getPort = (String)jComboBox1.getSelectedItem();
+            try
+            {
+                createReader(getPort, 9600);
+            }
+            catch (ReaderException ex)
+            {
+                System.out.print("Reader disconnnected!");
+            }
+        } else {
+            jButton3.setText("Connect");   
+        }
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -218,17 +308,302 @@ public class rfidReaderUI extends javax.swing.JFrame {
         });
     }
     
+    public String[] portScan()
+    {
+        boolean detect = false;
+        String[] ports;
+        
+        ports = SerialPortList.getPortNames();
+        return ports;
+    }
+    
+    // Sets baud rate to parameter
+    public void setBaudRate(int baudRate)
+    {
+        if(baudRate > 1)
+        {
+            try
+            {
+                r.paramSet("/reader/baudrate", baudRate);
+            }
+            catch (ReaderException ex)
+            {
+                r.destroy();
+            }
+        }
+    }
+    
+    // Sets regions to UNSPEC
+    public void unspecRegion() throws Exception
+    {
+        if (Reader.Region.UNSPEC == (Reader.Region)r.paramGet("/reader/region/id"))
+        {
+            Reader.Region[] supportedRegions = (Reader.Region[])r.paramGet(TMConstants.TMR_PARAM_REGION_SUPPORTEDREGIONS);
+            
+            if (supportedRegions.length < 1)
+            {
+                r.destroy();
+                throw new Exception("Reader doesn't support any regions");
+            }
+            else
+            {
+                r.paramSet("/reader/region/id", supportedRegions[0]);
+            }
+        }
+    }
+    
+    public void createReader(String port, int baudRate) throws ReaderException
+    {
+        try
+        {
+            r = Reader.create("tmr:///" + port);
+            setBaudRate(baudRate);
+            r.connect();
+            unspecRegion();
+        }
+        catch (ReaderException ex)
+        {
+            r.destroy();
+        }
+        catch (Exception ex)
+        {
+            System.out.print("Reader doesn't support any regions");
+        }
+    }
+    
+    public TagReadData[] readTags()
+    {
+        TagReadData[] tags = null;
+        try
+        {
+            tags = r.read(1000);
+        }
+        catch (ReaderException ex)
+        {
+            r.destroy();
+        }
+        
+        return tags;
+    }
+    
+    public void startAsyncRead()
+    {
+        r.addReadListener(rl);
+        r.startReading();
+    }
+    
+    public void stopAsyncRead()
+    {
+        r.stopReading();
+        r.removeReadListener(rl);
+    }
+    
+    public void writeEPC(TagData tag, String newEPC) throws ReaderException
+    {
+        TagData replaceEPC = new TagData(newEPC);
+        TagFilter target = tag;
+        
+        if(newEPC.length() == 24)
+        {
+            r.writeTag(target, replaceEPC);
+        }
+    }
+    
+    private String[] readEPCMem(TagData target)
+    {
+        String[] message = new String[3];
+        try{
+            //reading the CRC
+            short []crc = r.readTagMemWords(target, 01, 0, 1);
+            message[0] = "";
+            for (int i = 0; i < crc.length; i++)
+            {
+                message[0] += String.format("%04x", crc[i]);
+            }
+            
+            //reading the PC
+            short []pc = r.readTagMemWords(target, 01, 1, 1);
+            message[1] = "";
+            for (int i = 0; i < pc.length; i++)
+            {
+                message[1] += String.format("%04x", pc[i]);
+            }
+            
+            //reading the epc
+            short []epc = r.readTagMemWords(target, 01, 2, 6);
+            message[2] = "";
+            for (int i = 0; i < epc.length; i++)
+            {
+                message[2] += String.format("%04x", epc[i]);
+            }
+        }
+        catch(Exception ex)
+        {
+            for(int x = 0; x < 3; x++)
+            {
+                message[x] = "Read Error";
+            }
+        }
+        return message;
+    }
+    
+    private String readAccessMem(TagData target)
+    {
+        String message = "";
+        try{
+            short []accessPassword = r.readTagMemWords(target, 0, 2, 2);
+            for (int i = 0; i < accessPassword.length; i++)
+            {
+                message += String.format("%04x", accessPassword[i]);
+            }
+        }
+        catch(Exception e)
+        {
+            message = "Read Error";
+        }
+        return message;
+    }
+    
+    private String readKillMem(TagData target)
+    {
+        String message = "";
+        try{
+            short []killPassword = r.readTagMemWords(target, 0, 0, 2);
+            for (int i = 0; i < killPassword.length; i++)
+            {
+                message += String.format("%04x", killPassword[i]);
+            }
+        }
+        catch(Exception e)
+        {
+            message = "Could not read User Memory";
+        }
+        return message;
+    }
+    
+    private String[] readTIDMem(TagData target)
+    {
+        String []message = new String[4];
+        try{
+            short []other = r.readTagMemWords(target, 2, 0, 2);
+            message[0] = "";
+            message[1] ="";
+            message[2] ="";
+            message[3] = "";
+            System.out.println("Other Length: " + other.length);
+            for (int i = 0; i < other.length; i++)
+            {
+                String tidString = String.format("%04x", other[i]);
+                if(i<1){
+                    System.out.println("Reach Check 1");
+                    message[0] = tidString.substring(0, 2);
+                    System.out.println("Reached Check 2");
+                    message[1] = tidString.substring(2);
+                }
+                else{
+                    System.out.println("Reached Check 3");
+                    message[1] += tidString.substring(0, 1);
+                    System.out.println("Reached Check 4");
+                    message[2] = tidString.substring(1);
+                    System.out.println("Reached Check 5");
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            for(int x = 0; x < 4; x++)
+            {
+                message[x] = "Read Error";
+            }
+        }
+        return message;
+    }
+    
+    private String readUserMem(TagData target)
+    {
+        String message = "";
+        try{
+            short []user = r.readTagMemWords(target, 3, 0, 1);
+            for (int i = 0; i < user.length; i++)
+            {
+                message += String.format("%04x", user[i]);
+            }
+        }
+        catch(Exception e)
+        {
+            message = "Read Error";
+        }
+        return message;
+    }
+    
+    public String[] inspectTag(TagData target)
+    {
+        String []inspection = new String[10];
+        String []epcMemBank = readEPCMem(target);
+        inspection[0] = epcMemBank[0]; //CRC
+        inspection[1] = epcMemBank[1]; //PC
+        inspection[2] = epcMemBank[2]; //EPC
+        inspection[3] = readAccessMem(target);
+        inspection[4] = readKillMem(target);
+        String []tidMemBank = readTIDMem(target);
+        inspection[5] = tidMemBank[0]; //ClsID
+        inspection[6] = tidMemBank[1]; //Vendor ID
+        inspection[7] = tidMemBank[2]; //Model ID
+        inspection[8] = tidMemBank[3]; //Unique ID
+        inspection[9] = readUserMem(target);
+        return inspection;
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JList jList1;
     private javax.swing.JList jList2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JSplitPane jSplitPane3;
+    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
+}
+
+class PrintListener implements ReadListener
+{
+    Vector<TagReadData> tags = new Vector<TagReadData>();
+    Vector<Integer> counts = new Vector<Integer>();
+    
+    public void tagRead(Reader r, TagReadData tr)
+    {
+        listTags(tr);
+    }
+    
+    private void listTags(TagReadData tr)
+    {
+        if(tags.size() == 0){
+            tags.add(tr);
+            counts.add(1);
+        }
+        boolean duplicate = false;
+        for(int x = 0; x < tags.size(); x++)
+        {
+            String epc = tr.epcString();
+            //checking for same epc
+            if(epc.compareTo(tags.get(x).epcString()) == 0){
+                duplicate = true;
+                counts.set(x, counts.get(x)+1);
+            }
+        }
+        if(!duplicate)
+        {
+            tags.add(tr);
+            counts.add(1);
+        }
+    }
 }
